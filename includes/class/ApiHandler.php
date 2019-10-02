@@ -1,9 +1,11 @@
 <?php
 
-include_once('includes/config.inc.php');
+include_once 'includes/config.inc.php';
 
-class ApiHandler {
-    public function __construct() {
+class ApiHandler
+{
+    public function __construct()
+    {
         global $apiip, $apiport, $apipass, $apiproto, $apisslverify;
 
         $this->headers = [];
@@ -14,56 +16,62 @@ class ApiHandler {
         $this->sslverify = $apisslverify;
         $this->curlh = curl_init();
         $this->method = 'GET';
-        $this->content = FALSE;
+        $this->content = false;
         $this->apiurl = '';
     }
 
-    public function addheader($field, $content) {
+    public function addheader($field, $content)
+    {
         $this->headers[$field] = $content;
     }
 
-    private function authheaders() {
+    private function authheaders()
+    {
         $this->addheader('X-API-Key', $this->auth);
     }
 
-    private function apiurl() {
-        $tmp = new ApiHandler();
+    private function apiurl()
+    {
+        $tmp = new self();
 
         $tmp->url = '/api/v1/servers/localhost';
         $tmp->go();
 
-        $this->apiurl = $tmp->json["url"];
+        $this->apiurl = $tmp->json['url'];
     }
 
-    private function curlopts() {
+    private function curlopts()
+    {
         $this->authheaders();
         $this->addheader('Accept', 'application/json');
 
-        if(defined('curl_reset')) {
+        if (defined('curl_reset')) {
             curl_reset($this->curlh);
         } else {
             $this->curlh = curl_init();
         }
-        curl_setopt($this->curlh, CURLOPT_HTTPHEADER, Array());
+        curl_setopt($this->curlh, CURLOPT_HTTPHEADER, []);
         curl_setopt($this->curlh, CURLOPT_RETURNTRANSFER, 1);
 
         if (strcasecmp($this->proto, 'https')) {
             curl_setopt($this->curlh, CURLOPT_SSL_VERIFYPEER, $this->sslverify);
         }
 
-        $setheaders = Array();
+        $setheaders = [];
 
         foreach ($this->headers as $k => $v) {
-            array_push($setheaders, join(": ", Array($k, $v)));
+            array_push($setheaders, implode(': ', [$k, $v]));
         }
         curl_setopt($this->curlh, CURLOPT_HTTPHEADER, $setheaders);
     }
 
-    private function baseurl() {
+    private function baseurl()
+    {
         return $this->proto.'://'.$this->hostname.':'.$this->port.$this->apiurl;
     }
 
-    private function go() {
+    private function go()
+    {
         $this->curlopts();
 
         if ($this->content) {
@@ -96,15 +104,17 @@ class ApiHandler {
             throw new Exception("API Error $code: ".$json['error']);
         } elseif ($code < 200 || $code >= 300) {
             if ($code == 401) {
-                throw new Exception("Authentication failed. Have you configured your authmethod correct?");
+                throw new Exception('Authentication failed. Have you configured your authmethod correct?');
             }
+
             throw new Exception("Curl Error: $code ".curl_error($this->curlh));
         }
 
         $this->json = $json;
     }
 
-    public function call() {
+    public function call()
+    {
         if (substr($this->url, 0, 1) != '/') {
             $this->url = '/'.$this->url;
         }
@@ -113,4 +123,3 @@ class ApiHandler {
         $this->go();
     }
 }
-

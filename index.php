@@ -2,34 +2,36 @@
 
 define('ROOT', realpath('.'));
 
-include_once('includes/config.inc.php');
-include_once('includes/session.inc.php');
-include_once('includes/misc.inc.php');
+include_once 'includes/config.inc.php';
+include_once 'includes/session.inc.php';
+include_once 'includes/misc.inc.php';
+
+global $defaults;
 
 $testpath = str_replace(basename($_SERVER['REQUEST_URI']), $authdb, $_SERVER['REQUEST_URI']);
-$testurl = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].$testpath;
+$testurl = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].$testpath;
 
 global $errormsg, $blocklogin;
 
 if (isset($_GET['logout']) or isset($_POST['logout'])) {
     logout();
-    header("Location: index.php");
+    header('Location: index.php');
     exit(0);
 }
 
-if (!is_logged_in() and isset($_POST['formname']) and $_POST['formname'] === "loginform") {
+if (!is_logged_in() and isset($_POST['formname']) and $_POST['formname'] === 'loginform') {
     if (!try_login()) {
         $errormsg = "Error while trying to authenticate you\n";
     }
 }
 
-if (is_logged_in() and isset($_POST['formname']) and $_POST['formname'] === "changepwform") {
+if (is_logged_in() and isset($_POST['formname']) and $_POST['formname'] === 'changepwform') {
     if (get_sess_user() == $_POST['username']) {
         if (!update_user(get_sess_userid(), is_adminuser(), $_POST['password'])) {
             $errormsg = "Unable to update password!\n";
         }
     } else {
-        $errormsg = "You can only update your own password!".$_POST['username'];
+        $errormsg = 'You can only update your own password!'.$_POST['username'];
     }
 }
 
@@ -77,7 +79,7 @@ if (is_logged_in() and isset($_POST['formname']) and $_POST['formname'] === "cha
 
 <?php
 if (!is_logged_in()) {
-?>
+    ?>
 <body onload="document.getElementById('username').focus()">
 <div class="loginblock">
     <div class="logo">
@@ -85,9 +87,8 @@ if (!is_logged_in()) {
     </div>
     <div class="login">
         <?php if (isset($errormsg)) {
-            echo '<span style="color: red">' . $errormsg . '</span><br />';
-        }
-        ?>
+        echo '<span style="color: red">'.$errormsg.'</span><br />';
+    } ?>
         <form action="index.php" method="post">
             <table>
                 <tr>
@@ -100,17 +101,18 @@ if (!is_logged_in()) {
                 </tr>
                 <?php
                 if (isset($secret) && $secret) {
-                ?>
+                    ?>
                 <tr>
                     <td class="label">Remember me:</td>
                     <td><input type="checkbox" name="autologin" value="1"></td>
                 </tr>
                 <?php
-                }
-                ?>
+                } ?>
                 <tr>
                     <td></td>
-                    <td><input type="submit" name="submit" value="Log me in!" <?php if ($blocklogin === TRUE) { echo "disabled"; }; ?>></td>
+                    <td><input type="submit" name="submit" value="Log me in!" <?php if ($blocklogin === true) {
+                    echo 'disabled';
+                } ?>></td>
                 </tr>
             </table>
             <input type="hidden" name="formname" value="loginform">
@@ -124,11 +126,10 @@ if (!is_logged_in()) {
 exit(0);
 }
 
-if ($blocklogin === TRUE) {
-
-       echo "<h2>There is an error in your config!</h2>";
-       echo "<a href=\"index.php\">Refresh</a>";
-       exit(0);
+if ($blocklogin === true) {
+    echo '<h2>There is an error in your config!</h2>';
+    echo '<a href="index.php">Refresh</a>';
+    exit(0);
 }
 
 ?>
@@ -138,7 +139,7 @@ if ($blocklogin === TRUE) {
     </div>
     <div id="clearlogs" style="display: none;">
         Are you sure you want to clear the current logs? Maybe download them
-        first<?php if($allowrotatelogs) { ?>, or use "Rotate logs" to save
+        first<?php if ($allowrotatelogs) { ?>, or use "Rotate logs" to save
         them on the server<?php } ?>?
     </div>
     <div id="rotatelogs" style="display: none;">
@@ -194,11 +195,11 @@ if ($blocklogin === TRUE) {
         </ul>
     </div>
     <?php if (isset($errormsg)) {
-        echo '<span style="color: red">' . $errormsg . '</span><br />';
-    }
+    echo '<span style="color: red">'.$errormsg.'</span><br />';
+}
     ?>
     <div id="zones">
-        <?php if (is_adminuser() or $allowzoneadd === TRUE) { ?>
+        <?php if (is_adminuser() or $allowzoneadd === true) { ?>
         <div style="display: none;" id="ImportZone"></div>
         <div style="display: none;" id="CloneZone"></div>
         <?php } ?>
@@ -215,15 +216,15 @@ if ($blocklogin === TRUE) {
     </div>
     <div id="logs">
         <div class="tables" id="Logs"></div>
-        <?php if($allowrotatelogs) { ?>
+        <?php if ($allowrotatelogs) { ?>
         <br>Log entries being viewed:
         <select id="logfile">
         <option value="">(Current logs)</option>
         <?php
-            $logfiles=listrotatedlogs();
-            if($logfiles !== FALSE) {
+            $logfiles = listrotatedlogs();
+            if ($logfiles !== false) {
                 foreach ($logfiles as $filename) {
-                    echo '<option value="' . $filename . '">' . str_replace(".json","",$filename) . "</option>\n";
+                    echo '<option value="'.$filename.'">'.str_replace('.json', '', $filename)."</option>\n";
                 }
             }
         ?></select>
@@ -369,7 +370,7 @@ $(document).ready(function () {
         actions: {
             listAction: 'zones.php?action=listslaves',
             updateAction: 'zones.php?action=update',
-            <?php if (is_adminuser() or $allowzoneadd === TRUE) { ?>
+            <?php if (is_adminuser() or $allowzoneadd === true) { ?>
             createAction: 'zones.php?action=create',
             deleteAction: 'zones.php?action=delete',
             <?php } ?>
@@ -520,7 +521,7 @@ $(document).ready(function () {
             hoverAnimationDuration: 60,
             hoverAnimationEasing: undefined,
             items: [
-                <?php if (is_adminuser() or $allowzoneadd === TRUE) { ?>
+                <?php if (is_adminuser() or $allowzoneadd === true) { ?>
                 {
                     icon: 'jtable/lib/themes/metro/add.png',
                     text: 'Import a new zone',
@@ -741,7 +742,7 @@ $(document).ready(function () {
         openChildAsAccordion: true,
         actions: {
             listAction: 'zones.php?action=list',
-            <?php if (is_adminuser() or $allowzoneadd === TRUE) { ?>
+            <?php if (is_adminuser() or $allowzoneadd === true) { ?>
             createAction: 'zones.php?action=create',
             deleteAction: 'zones.php?action=delete',
             <?php } ?>
@@ -808,7 +809,9 @@ $(document).ready(function () {
                 edit: false,
                 input: function(data) {
                     var $template = data.form.find('#Edit-template');
-                    var ns_form = '<?php foreach($defaults['ns'] as $ns) echo '<input type="text" name="nameserver[]" value="'.$ns.'" /><br />'; ?>';
+                    var ns_form = '<?php foreach ($defaults['ns'] as $ns) {
+            echo '<input type="text" name="nameserver[]" value="'.$ns.'" /><br />';
+        } ?>';
                     var $elem = $('<div id="nameservers">' + ns_form + '</div>');
                     $template.change(function() {
                         $.get('zones.php?action=getformnameservers&template='+$template.val(), function(getdata) {
@@ -891,7 +894,9 @@ $(document).ready(function () {
                 list: false,
                 edit: false,
                 input: function(data) {
-                    var ns_form = '<?php foreach($defaults['ns'] as $ns) echo '<input type="text" name="nameserver[]" value="'.$ns.'" /><br />'; ?>';
+                    var ns_form = '<?php foreach ($defaults['ns'] as $ns) {
+            echo '<input type="text" name="nameserver[]" value="'.$ns.'" /><br />';
+        } ?>';
                     var $elem = $('<div id="nameservers">' + ns_form + '</div>');
                     return $elem;
                 },
@@ -1109,7 +1114,7 @@ $(document).ready(function () {
                         });
                     }
                 },
-                <?php if($allowrotatelogs === TRUE) { ?>
+                <?php if ($allowrotatelogs === true) { ?>
                 {
                     text: 'Rotate logs',
                     click: function() {
@@ -1133,7 +1138,7 @@ $(document).ready(function () {
                     }
                 },
                 <?php } ?>
-                <?php if($allowclearlogs === TRUE) { ?>
+                <?php if ($allowclearlogs === true) { ?>
                 {
                     icon: 'img/delete_inverted.png',
                     text: 'Clear logs',
