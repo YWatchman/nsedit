@@ -11,6 +11,6 @@ if(php_sapi_name() !== 'cli') {
         $current_user['username']='<system>';
         rotatelogs();
     } else {
-        echo "Rotating logs has been disabled."
+        echo "Rotating logs has been disabled.";
     }
 }
