@@ -1,5 +1,7 @@
 <?php
 
+define('ROOT', realpath('.'));
+
 include_once('includes/config.inc.php');
 include_once('includes/session.inc.php');
 include_once('includes/misc.inc.php');

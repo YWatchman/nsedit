@@ -6,7 +6,7 @@ class ApiHandler {
     public function __construct() {
         global $apiip, $apiport, $apipass, $apiproto, $apisslverify;
 
-        $this->headers = Array();
+        $this->headers = [];
         $this->hostname = $apiip;
         $this->port = $apiport;
         $this->auth = $apipass;
@@ -31,7 +31,7 @@ class ApiHandler {
 
         $tmp->url = '/api/v1/servers/localhost';
         $tmp->go();
-        
+
         $this->apiurl = $tmp->json["url"];
     }
 
